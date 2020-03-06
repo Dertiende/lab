@@ -132,4 +132,3 @@ def norient_generate_edges_ves(graph,nodes): #strong
             #edges.append((node, neighbour))
     #return edges
 print(norient_generate_edges_ves (graph,5))
-print("eaw")
