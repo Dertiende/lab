@@ -9,6 +9,21 @@ def orient_generate_edges(nodes): #weak
             ves = random.randint(0, 1)
             if i != j:
                 matrix[i][j] = ves
+    try:
+        file = open("gen.csv", "w")
+        for i in range(nodes):
+            file.write(str(i) + ";")
+            for j in range(nodes):
+                try:
+                    if matrix[i][j] != 0:
+                        file.write(str(j) + ";")
+                except Exception as e:
+                    print("can't write to file: ", e)
+                    file.close()
+            file.write("\n")
+        file.close()
+    except Exception as e:
+        print("can't open file: ", e)
     return matrix
 
 
@@ -29,6 +44,21 @@ def orient_generate_edges_ves (nodes): #weak
                 ves = random.randint(0, 1)
                 if i != j and ves == 1:
                     matrix[i][j] = random.randint(0, 1000)
+        try:
+            file = open("gen.csv", "w")
+            for i in range(nodes):
+                file.write(str(i) + ";")
+                for j in range(nodes):
+                    try:
+                        if matrix[i][j] != 0:
+                            file.write(str(j)+" *"+str(matrix[i][j]) +"*"+ ";")
+                    except Exception as e:
+                        print("can't write to file: ", e)
+                        file.close()
+                file.write("\n")
+            file.close()
+        except Exception as e:
+            print("can't open file: ", e)
         return matrix
 
 
@@ -40,18 +70,27 @@ def norient_generate_edges_ves(nodes): #strong
                 ves = random.randint(0, 1)
                 if i != j and ves == 1:
                     matrix[i][j] = random.randint(0, 1000)
+        for i in range(nodes-1,0, -1):
+            for j in range(nodes-1):
+                matrix[i][j] = matrix[j][i]
+        try:
+            file = open("gen.csv", "w")
+            for i in range(nodes):
+                file.write(str(i) + ";")
+                for j in range(nodes):
+                    try:
+                        if matrix[i][j] != 0:
+                            file.write(str(j)+" *"+str(matrix[i][j]) +"*"+ ";")
+                    except Exception as e:
+                        print("can't write to file: ", e)
+                        file.close()
+                file.write("\n")
+            file.close()
+        except Exception as e:
+            print("can't open file: ", e)
+
         return matrix
 
-#def ns_con_generate_edges(): #not stated
-#def generate_edges(graph):
 
-    #edges = []
-    # for each node in graph
-    #for node in graph:
 
-        # for each neighbour node of a single node
-        #for neighbour in graph[node]:
-            # if edge exists then append
-            #edges.append((node, neighbour))
-    #return edges
-print(orient_generate_edges (10))
+print(norient_generate_edges_ves (10))
