@@ -4,79 +4,29 @@ import numpy as np
 from SCC import kosaraju
 from importer import csv_to_dict
 
-def orient_generate_edges(nodes,strong): #weak
-    uncon = [i for i in range(nodes)]
-    con = []
+
+def orient_generate_edges(nodes, strong,start=1):  # weak
     matrix = np.zeros((nodes, nodes))
     print("Генерируем граф", end="")
     for i in range(nodes):
-        if i%20==0:
+        if i % 20 == 0:
             print(".", end="")
         for j in range(nodes):
             ves = random.randint(0, 1)
             if i != j:
                 matrix[i][j] = ves
     print("[ОК]")
-    print("Проверяем связность", end="")
-    for i in range(nodes):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    for i in range(nodes-1,0,-1):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    con.sort()
-    print("[ОК]")
-    #print ("unc",uncon)
-    #print (con)
-    #print(matrix)
 
+    matrix = solo_edge(matrix, nodes, 0, 1)
 
-    for i in range(len(uncon)):
-        a = -10
-        while (a<uncon[i]):
-            a = random.choice(con)
-        matrix[uncon[i]][a] = 1
-        con.append(uncon[i])
     try:
         file = open("gen.csv", "w")
         for i in range(nodes):
-            file.write("["+str(i)+"]" + ";")
+            file.write("[" + str(i) + "]" + ";")
             for j in range(nodes):
                 try:
                     if matrix[i][j] != 0:
-                        file.write("["+str(j)+"]" + ";")
+                        file.write("[" + str(j) + "]" + ";")
                 except Exception as e:
                     print("can't write to file: ", e)
                     file.close()
@@ -85,16 +35,14 @@ def orient_generate_edges(nodes,strong): #weak
     except Exception as e:
         print("can't open file: ", e)
     print("CSV-файл создан")
-    print("Проверяем сильносвязность", end="")
+    if strong and start:print("Проверяем сильносвязность", end="")
     if strong:
-        kosadict = {}
         kosadict = csv_to_dict(nodes)
-        num = 0
         while len(kosaraju(kosadict)) != 1:
             print(".", end="")
             orient_generate_edges_ves(nodes, 1)
-            #print("hell")
-        print("[ОК]")
+            # print("hell")
+        if len(kosaraju(kosadict)) == 1:print("[ОК]")
         return matrix
 
     else:
@@ -102,13 +50,64 @@ def orient_generate_edges(nodes,strong): #weak
         return matrix
 
 
-def norient_generate_edges(nodes): #strong
-    uncon =[i for i in range(nodes)]
-    con = []
+def solo_edge(matrix, nodes, ves, orient):
+    maybe = []
+    solo = []
+    print("Проверяем связность", end="")
+    for j in range(nodes):
+        if j % 50 == 0:
+            print(".", end="")
+        if int(matrix[0][j]) == 0:
+            i = 0
+            while int(matrix[i][j]) == 0:
+                i = i + 1
+                if i == nodes:
+                    maybe.append(j)
+                    break
+
+    for i in maybe:
+        if i % 50 == 0:
+            print(".", end="")
+        if int(matrix[i][0]) == 0:
+            j = 0
+            while int(matrix[i][j]) == 0:
+                j = j + 1
+                if j == nodes:
+                    solo.append(i)
+                    break
+    for i in solo:
+        if i % 20 == 0:
+            print(".", end="")
+        if orient:
+            a = random.randint(0, 1)
+            if a:
+                if not ves:
+                    matrix[i][random.randint(0, nodes - 1)] = 1
+                else:
+                    matrix[i][random.randint(0, nodes - 1)] = random.randint(0, 1000)
+            else:
+                if not ves:
+                    matrix[random.randint(0, nodes - 1)][i] = 1
+                else:
+                    matrix[random.randint(0, nodes - 1)][i] = random.randint(0, 1000)
+        else:
+            a = random.randint(0, 1000)
+            if a:
+                if not ves:
+                    matrix[i][random.randint(0, nodes - 1)] = 1
+                    matrix[random.randint(0, nodes - 1)][i] = 1
+                else:
+                    matrix[i][random.randint(0, nodes - 1)] = random.randint(0, a)
+                    matrix[random.randint(0, nodes - 1)][i] = random.randint(0, a)
+    print("[ОК]")
+    return matrix
+
+
+def norient_generate_edges(nodes):  # strong
     matrix = np.zeros((nodes, nodes))
-    print("Генерируем граф",end="")
+    print("Генерируем граф", end="")
     for i in range(nodes):
-        if i%20==0:
+        if i % 20 == 0:
             print(".", end="")
         for j in range(i + 1, nodes):
             ves = random.randint(0, 1)
@@ -119,62 +118,8 @@ def norient_generate_edges(nodes): #strong
         for j in range(nodes - 1):
             matrix[i][j] = matrix[j][i]
     print("[ОК]")
-    print("Проверяем связность", end="")
-    for i in range(nodes):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    for i in range(nodes-1,0,-1):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    con.sort()
-    print("[ОК]")
-    #print ("unc",uncon)
-    #print (con)
-    #print(matrix)
 
-
-    for i in range(len(uncon)):
-        a = -10
-        while (a<uncon[i]):
-            a = random.choice(con)
-        matrix[uncon[i]][a] = 1
-        con.append(uncon[i])
-
-    #print("unc", uncon)
-    #print(con)
-
+    matrix = solo_edge(matrix, nodes, 0)
 
     try:
         file = open("gen.csv", "w")
@@ -193,75 +138,23 @@ def norient_generate_edges(nodes): #strong
         print("can't open file: ", e)
     print("CSV-файл создан")
 
-    #print(matrix)
+    # print(matrix)
 
     return matrix
 
-def orient_generate_edges_ves (nodes, strong):
-    uncon = [i for i in range(nodes)]
-    con = []
+
+def orient_generate_edges_ves(nodes, strong, start=1):
     matrix = np.zeros((nodes, nodes))
-    print("Генерируем граф", end="")
+    if start: print("Генерируем граф", end="")
     for i in range(nodes):
-        if i%20==0:
+        if i % 20 == 0:
             print(".", end="")
         for j in range(nodes):
             ves = random.randint(0, 1)
             if i != j and ves == 1:
                 matrix[i][j] = random.randint(0, 1000)
-    print("[ОК]")
-    print("Проверяем связность", end="")
-    for i in range(nodes):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    for i in range(nodes-1,0,-1):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    con.sort()
-    print("[ОК]")
-    #print ("unc",uncon)
-    #print (con)
-    #print(matrix)
-
-
-    for i in range(len(uncon)):
-        a = -10
-        while (a<uncon[i]):
-            a = random.choice(con)
-        matrix[uncon[i]][a] = 1
-        con.append(uncon[i])
+    if start: print("[ОК]")
+    solo_edge(matrix, nodes, 1, 1)
 
     try:
         file = open("gen.csv", "w")
@@ -279,92 +172,38 @@ def orient_generate_edges_ves (nodes, strong):
     except Exception as e:
         print("can't open file: ", e)
     print("CSV-файл создан")
-    print("Проверяем сильносвязность", end="")
+    if strong and start:print("Проверяем сильносвязность", end="")
     if strong:
 
-        kosadict = {}
         kosadict = csv_to_dict(nodes)
-        num = 0
-        while len(kosaraju(kosadict))!=1:
+        while len(kosaraju(kosadict)) != 1:
             print(".", end="")
             orient_generate_edges_ves(nodes, 1)
-            #print("hell")
-        print("[ОК]")
+        if len(kosaraju(kosadict)) == 1:print("[ОК]")
         return matrix
+
 
     else:
 
         return matrix
 
 
-def norient_generate_edges_ves(nodes): #strong
-    uncon = [i for i in range(nodes)]
-    con = []
+def norient_generate_edges_ves(nodes):  # strong
     matrix = np.zeros((nodes, nodes))
     print("Генерируем граф", end="")
     for i in range(nodes):
-        if i%20==0:
+        if i % 20 == 0:
             print(".", end="")
         for j in range(i + 1, nodes):
             ves = random.randint(0, 1)
             if i != j and ves == 1:
                 matrix[i][j] = random.randint(0, 1000)
-    for i in range(nodes-1,0, -1):
-        for j in range(nodes-1):
+    for i in range(nodes - 1, 0, -1):
+        for j in range(nodes - 1):
             matrix[i][j] = matrix[j][i]
     print("[ОК]")
-    print("Проверяем связность", end="")
-    for i in range(nodes):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    for i in range(nodes-1,0,-1):
-        if i%50==0:
-            print(".", end="")
-        for j in range (nodes):
-            if i != j and matrix[i][j] != 0:
-                if len(con)==0:
-                    con.append(i)
-                    con.append(j)
-                    uncon.remove(i)
-                    uncon.remove(j)
-                a = con.count(i)
-                b = con.count(j)
-                if a == 0 or b == 0:
-                   if a == 0 and b != 0:
-                       con.append(i)
-                       uncon.remove(i)
-                   if b == 0 and a != 0:
-                        con.append(j)
-                        uncon.remove(j)
-    con.sort()
-    print("[ОК]")
-    #print ("unc",uncon)
-    #print (con)
-    #print(matrix)
+    solo_edge(matrix, nodes, 1)
 
-
-    for i in range(len(uncon)):
-        a = -10
-        while (a<uncon[i]):
-            a = random.choice(con)
-        matrix[uncon[i]][a] = 1
-        con.append(uncon[i])
     try:
         file = open("gen.csv", "w")
         for i in range(nodes):
@@ -383,6 +222,7 @@ def norient_generate_edges_ves(nodes): #strong
     print("CSV-файл создан")
 
     return matrix
+
 
 def generate():
     print("Введите кол-во вершин: ")
@@ -402,13 +242,10 @@ def generate():
         if ves == 1:
             print(norient_generate_edges_ves(nodes))
         else:
-            norient_generate_edges(nodes)
+            print(norient_generate_edges(nodes))
     return nodes
 
-if __name__ == '__main__':
-    #test = norient_generate_edges(10)
-    #while len(test)<3:
-        #test = norient_generate_edges(10)
-        #print(len(test))
 
+if __name__ == '__main__':
+    # orient_generate_edges(1000,0)
     generate()

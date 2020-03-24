@@ -17,7 +17,6 @@ def transpose(G):
 
 
 def true_dict(D):
-    # print("rr")
     for i in D.keys():
         if D[i] == False:
             return False

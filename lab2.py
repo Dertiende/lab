@@ -1,5 +1,5 @@
 from lab1 import generate
-from dfsbsfs import  dfs, bfs
+from dfsbsfs import  dfsstart, bfs
 from importer import  csv_to_dict
 
 if __name__ == '__main__':
@@ -14,6 +14,6 @@ if __name__ == '__main__':
         print(bfs(G, tchk))
     else:
         print("Обходим:", end="")
-        D = dfs(G, tchk, 0)
+        D = dfsstart(tchk,G)
         print("[ОК]")
         print(D)

@@ -12,6 +12,7 @@ def csv_to_dict(nodes):
     kosadict = {}
     for i in range(nodes):
         regex = r"[[]\d+[]]"
+
         test_str =file.readline()
         call.append([])
         out.append([])
@@ -33,56 +34,44 @@ def csv_to_dict(nodes):
     file.close()
     return kosadict
 
-def csv_to_ves(nodes):
-    call = []
-    out = []
-
+def csv_to_kruskal(nodes):
+    a = []
+    nodelist= []
+    ves = []
     file = open("gen.csv", "r")
     kosadict = []
     for i in range(nodes):
         regex = r"[[]\d+[]]"
         test_str = file.readline()
-        call.append([])
-        out.append([])
+        a.append([])
+        nodelist.append([])
+        ves.append([])
         matches = re.finditer(regex, test_str, re.MULTILINE)
         for matchNum, match in enumerate(matches, start=1):
-            call[i].append(match.group())
+            a[i].append(match.group())
             # print(i," "+str(call[i]))
 
         regex = r"\d+"
-        matches = re.finditer(regex, str(call[i]), re.MULTILINE)
+        matches = re.finditer(regex, str(a[i]), re.MULTILINE)
         for matchNum, match in enumerate(matches, start=1):
-            out[i].append([int(match.group())])
-
-        kosadict.append([])
-        for outs in range(1, len(out[i])):
-            if out[i][outs] not in kosadict[i]:
-                #print("outs ",out[i][outs], "kosa ", kosadict[i] )
-                kosadict[i].append(out[i][outs])
-
-        regex = r"([^*[]\d+[^*.\]])"
-        call.append([])
-        out.append([])
+            nodelist[i].append(int(match.group()))
+        nodelist[i].pop(0)
+        regex = r"\d+.0"
         matches = re.finditer(regex, test_str, re.MULTILINE)
         for matchNum, match in enumerate(matches, start=1):
-            out[i][matchNum].insert(i,int(match.group()))
-            print(kosadict[i])
-        for outs in range(1,len(out[i])):
-            if out[i][outs] not in kosadict[i]:
-                kosadict[i].append(out[i][outs])
-                print(i," "+str(kosadict[i]))
-    print(kosadict)
+            temp = match.group()
+            temp = temp[:-2]
+            ves[i].append(int(temp))
+        for j in range(len(nodelist[i])):
+            kosadict.append([i,nodelist[i][j],ves[i][j]])
+    #print("out",nodelist)
+    #print("ves",ves)
+    kosadict.sort(key=sort_key)
+    #print("kosa", kosadict)
     file.close()
     out = []
-    print("kosa", len(kosadict))
-    for i in range(len(kosadict)):
-        #print("len", i, "kosa", len(kosadict))
-        print("kosa[]", len(kosadict[i]))
-        for j in range(len(kosadict[i])):
-            print("sdca",kosadict[i][j])
-            out.append([i,kosadict[i][j][0], kosadict[i][j][1]])
-        print(out)
     return kosadict
-
+def sort_key(i):
+    return i[2]
 if __name__ == '__main__':
-    csv_to_ves(10)
+    csv_to_kruskal(10)
