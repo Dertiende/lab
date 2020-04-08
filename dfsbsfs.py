@@ -21,7 +21,6 @@ def bfs(G, i):
         for a in al:
             queue.insert(0, a)
         itera+=1
-
     return order
 
 
@@ -53,7 +52,7 @@ def dfsstart(vertex,G):
 def main():
     G = {0: [1, 4],
          1: [3, 4],
-         2: [],
+         2: [1],
          3: [4],
          4: [0, 2]}
     # 5: [4],
@@ -63,16 +62,6 @@ def main():
     initial = 2
     print(dfsstart(initial, G))
     print (dfs(G,initial,0,visited=[]))
-
+    print(bfs(G,initial))
 if __name__ == '__main__':
-    G = {0: [1, 4],
-         1: [3, 4],
-         2: [],
-         3: [4],
-         4: [0, 2]}
-         #5: [4],
-         #6: [1, 7, 8],
-         #7: [3, 6],
-         #8: [6]}
-    initial = 2
     main()

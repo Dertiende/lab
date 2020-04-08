@@ -5,8 +5,12 @@ from SCC import kosaraju
 from importer import csv_to_dict
 
 
-def orient_generate_edges(nodes, strong,start=1):  # weak
-    matrix = np.zeros((nodes, nodes))
+def orient_generate_edges(connect, nodes, strong,start=1):  # weak
+    matrix = []
+    for i in range(nodes):
+        matrix.append([])
+        for j in range(nodes):
+            matrix[i].append(0)
     print("Генерируем граф", end="")
     for i in range(nodes):
         if i % 20 == 0:
@@ -16,8 +20,8 @@ def orient_generate_edges(nodes, strong,start=1):  # weak
             if i != j:
                 matrix[i][j] = ves
     print("[ОК]")
-
-    matrix = solo_edge(matrix, nodes, 0, 1)
+    if connect:
+        matrix = solo_edge(matrix, nodes, 0, 1)
 
     try:
         file = open("gen.csv", "w")
@@ -103,14 +107,19 @@ def solo_edge(matrix, nodes, ves, orient):
     return matrix
 
 
-def norient_generate_edges(nodes):  # strong
-    matrix = np.zeros((nodes, nodes))
+def norient_generate_edges(connect, nodes):  # strong
+    chance = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+    matrix = []
+    for i in range(nodes):
+        matrix.append([])
+        for j in range(nodes):
+            matrix[i].append(0)
     print("Генерируем граф", end="")
     for i in range(nodes):
         if i % 20 == 0:
             print(".", end="")
         for j in range(i + 1, nodes):
-            ves = random.randint(0, 1)
+            ves = random.choice(chance)
             if i != j:
                 matrix[i][j] = ves
 
@@ -118,17 +127,17 @@ def norient_generate_edges(nodes):  # strong
         for j in range(nodes - 1):
             matrix[i][j] = matrix[j][i]
     print("[ОК]")
-
-    matrix = solo_edge(matrix, nodes, 0)
+    if connect:
+        matrix = solo_edge(matrix, nodes, 0)
 
     try:
         file = open("gen.csv", "w")
         for i in range(nodes):
-            file.write(str(i) + ";")
+            file.write("["+str(i) +"]"+ ";")
             for j in range(nodes):
                 try:
                     if matrix[i][j] != 0:
-                        file.write(str(j) + ";")
+                        file.write("["+ str(j) +"]"+ ";")
                 except Exception as e:
                     print("can't write to file: ", e)
                     file.close()
@@ -143,8 +152,12 @@ def norient_generate_edges(nodes):  # strong
     return matrix
 
 
-def orient_generate_edges_ves(nodes, strong, start=1):
-    matrix = np.zeros((nodes, nodes))
+def orient_generate_edges_ves(connect, nodes, strong, start=1):
+    matrix = []
+    for i in range(nodes):
+        matrix.append([])
+        for j in range(nodes):
+            matrix[i].append(0)
     if start: print("Генерируем граф", end="")
     for i in range(nodes):
         if i % 20 == 0:
@@ -154,7 +167,8 @@ def orient_generate_edges_ves(nodes, strong, start=1):
             if i != j and ves == 1:
                 matrix[i][j] = random.randint(0, 1000)
     if start: print("[ОК]")
-    solo_edge(matrix, nodes, 1, 1)
+    if connect:
+        matrix = solo_edge(matrix, nodes, 1, 1)
 
     try:
         file = open("gen.csv", "w")
@@ -162,7 +176,7 @@ def orient_generate_edges_ves(nodes, strong, start=1):
             file.write("[" + str(i) + "]" + ";")
             for j in range(nodes):
                 try:
-                    if matrix[i][j] != 0:
+                    if int(matrix[i][j]) != int(0):
                         file.write("[" + str(j) + "]" + " *" + str(matrix[i][j]) + "*" + ";")
                 except Exception as e:
                     print("can't write to file: ", e)
@@ -178,7 +192,7 @@ def orient_generate_edges_ves(nodes, strong, start=1):
         kosadict = csv_to_dict(nodes)
         while len(kosaraju(kosadict)) != 1:
             print(".", end="")
-            orient_generate_edges_ves(nodes, 1)
+            orient_generate_edges_ves(connect,nodes, 1)
         if len(kosaraju(kosadict)) == 1:print("[ОК]")
         return matrix
 
@@ -188,21 +202,27 @@ def orient_generate_edges_ves(nodes, strong, start=1):
         return matrix
 
 
-def norient_generate_edges_ves(nodes):  # strong
-    matrix = np.zeros((nodes, nodes))
+def norient_generate_edges_ves(connect, nodes):  # strong
+    chance = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+    matrix = []
+    for i in range(nodes):
+        matrix.append([])
+        for j in range(nodes):
+            matrix[i].append(0)
     print("Генерируем граф", end="")
     for i in range(nodes):
         if i % 20 == 0:
             print(".", end="")
         for j in range(i + 1, nodes):
-            ves = random.randint(0, 1)
+            ves = random.choice(chance)
             if i != j and ves == 1:
                 matrix[i][j] = random.randint(0, 1000)
     for i in range(nodes - 1, 0, -1):
         for j in range(nodes - 1):
             matrix[i][j] = matrix[j][i]
     print("[ОК]")
-    solo_edge(matrix, nodes, 1)
+    if connect:
+        matrix = solo_edge(matrix, nodes, 1)
 
     try:
         file = open("gen.csv", "w")
@@ -229,21 +249,31 @@ def generate():
     nodes = int(input())
     print("Граф ориентированный?\n 1 - да\n 0 - нет")
     orient = int(input())
+    print("Граф связный?\n 1 - да\n 0 - нет")
+    connect = int(input())
     print("Генерировать вес ребра?\n 1 - да\n 0 - нет")
     ves = int(input())
     if orient == 1:
         print("Граф сильносвязный?\n 1 - да\n 0 - нет")
         strong = int(input())
         if ves == 1:
-            print(orient_generate_edges_ves(nodes, strong))
+            out = orient_generate_edges_ves(connect, nodes, strong)
+            for i in range(nodes):
+                print(out[i])
         else:
-            print(orient_generate_edges(nodes, strong))
+            out = orient_generate_edges(connect, nodes, strong)
+            for i in range(nodes):
+                print(out[i])
     else:
         if ves == 1:
-            print(norient_generate_edges_ves(nodes))
+            out = norient_generate_edges_ves(connect, nodes)
+            for i in range(nodes):
+                print(out[i])
         else:
-            print(norient_generate_edges(nodes))
-    return nodes
+            out = norient_generate_edges(connect, nodes)
+            for i in range(nodes):
+                print(out[i])
+    return nodes,out
 
 
 if __name__ == '__main__':
